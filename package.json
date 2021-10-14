@@ -12,7 +12,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "test:check": "react-scripts test --watchAll=false",
-    "eject": "react-scripts eject",
+    "format": "prettier --list-different --write \"**/*.{ts,tsx,html,json,js}\"",
     "postinstall": "husky install"
   },
   "eslintConfig": {
