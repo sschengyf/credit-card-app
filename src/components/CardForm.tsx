@@ -27,7 +27,8 @@ interface CardForm {
   date: string | undefined;
 }
 
-const isNumber = (value: string) => '' !== value.trim() && Number.isInteger(Number(value.trim()));
+export const isNumber = (value: string) => '' !== value.trim() && Number.isInteger(Number(value.trim()));
+export const isDate = (value: string) => /^\d\d\/\d\d$/.test(value);
 
 export const CardForm: FC<{ user: User }> = ({ user }) => {
   const [cardForm, setCardForm] = useState<CardForm>({ cardNumber: '', cvc: '', date: '' });
@@ -38,7 +39,12 @@ export const CardForm: FC<{ user: User }> = ({ user }) => {
     isDirty: isCardNumberDirty,
   } = useInput(cardForm.cardNumber, isNumber);
   const { value: cvc, bind: bindCvc, isValid: isCvcValid, isDirty: isCvcDirty } = useInput(cardForm.cvc, isNumber);
-  const { value: expiry, bind: bindExpiry, isValid: isExpiryValid } = useInput(cardForm.date);
+  const {
+    value: expiry,
+    bind: bindExpiry,
+    isValid: isExpiryValid,
+    isDirty: isExpiryDirty,
+  } = useInput(cardForm.date, isDate);
 
   useEffect(() => {
     if (isCardNumberValid) {
@@ -51,6 +57,12 @@ export const CardForm: FC<{ user: User }> = ({ user }) => {
       setCardForm({ ...cardForm, ...{ cvc } });
     }
   }, [isCvcValid, cvc]);
+
+  useEffect(() => {
+    if (isExpiryValid) {
+      setCardForm({ ...cardForm, ...{ expiry } });
+    }
+  }, [isExpiryValid, expiry]);
 
   const handleSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
@@ -71,7 +83,10 @@ export const CardForm: FC<{ user: User }> = ({ user }) => {
             {!isCvcValid && isCvcDirty && <Styled.ErrorMessage>CVC is invalid</Styled.ErrorMessage>}
           </Styled.FormControl>
           <Styled.FormControl>
-            <input aria-label="expiry" type="date" placeholder="Expiry" />
+            <input aria-label="expiry" type="text" title="dd/yy" placeholder="Expiry dd/yy" {...bindExpiry} />
+            {!isExpiryValid && isExpiryDirty && (
+              <Styled.ErrorMessage>Expiry is invalid, please use format dd/yy</Styled.ErrorMessage>
+            )}
           </Styled.FormControl>
         </Styled.FormControlGroup>
         <Styled.FormControl>
